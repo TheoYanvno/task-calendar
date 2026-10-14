@@ -1,5 +1,7 @@
 # Task Calendar
 
+**▶ [Live demo](https://theoyanvno.github.io/task-calendar/)**
+
 A to-do list and a calendar in one. Plan tasks on a month view, check them off, set them to repeat, drag them to a new day, and export everything to your phone's calendar.
 
 **Tech:** JavaScript (ES modules) · HTML/CSS · Drag and Drop API · `localStorage` · iCalendar (.ics) · `node:test` · no frameworks

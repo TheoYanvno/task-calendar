@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Calendar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Task Calendar</h1>
+    <div class="top-actions">
+      <button id="theme" aria-label="Toggle dark mode">🌙</button>
+      <button id="export">Export .ics</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="calendar" aria-label="Calendar">
+      <div class="cal-head">
+        <button id="prevMonth" aria-label="Previous month">‹</button>
+        <h2 id="monthLabel"></h2>
+        <button id="nextMonth" aria-label="Next month">›</button>
+        <button id="today" class="ghost">Today</button>
+      </div>
+      <div class="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+      <div id="grid" class="grid"></div>
+      <p class="hint">Tip: drag a task onto another day to reschedule it.</p>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h2 id="dayLabel"></h2>
+        <form id="addForm" class="add">
+          <input id="title" placeholder="Add a task…" required autocomplete="off" aria-label="Task title">
+          <div class="row">
+            <input id="time" type="time" aria-label="Time (optional)">
+            <select id="priority" aria-label="Priority">
+              <option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option>
+            </select>
+            <select id="repeat" aria-label="Repeat">
+              <option value="none">Once</option><option value="daily">Daily</option><option value="weekdays">Weekdays</option>
+              <option value="weekly">Weekly</option><option value="monthly">Monthly</option>
+            </select>
+            <button class="primary">Add</button>
+          </div>
+        </form>
+        <ul id="dayTasks" class="tasks"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="views" role="tablist">
+          <button data-view="upcoming" aria-selected="true">Next 7 days</button>
+          <button data-view="overdue" aria-selected="false">Overdue <span id="overdueCount" class="badge"></span></button>
+        </div>
+        <div id="viewList"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

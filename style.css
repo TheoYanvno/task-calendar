@@ -9,7 +9,8 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 .primary { background: var(--accent); color: #fff; border-color: transparent; }
 .ghost { margin-left: auto; }
 .top { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
-.top h1 { margin: 0; font-size: 1.3rem; } .top-actions { display: flex; gap: 8px; }
+.top h1 { margin: 0; font-size: 1.3rem; }
+#export { white-space: nowrap; } .top-actions { display: flex; gap: 8px; }
 .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; max-width: 1200px; margin: 20px auto; padding: 0 16px; }
 .calendar, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
 .cal-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -72,3 +73,29 @@ body, .top, .day, .primary { transition: background-color .3s ease, color .3s ea
 .add input#location { margin-top: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; font-size: .9rem; }
 .t-loc { display: block; font-size: .78rem; color: var(--accent); text-decoration: none; overflow-wrap: anywhere; margin-top: 1px; }
 .t-loc:hover { text-decoration: underline; }
+
+/* Clock and weather */
+.top-actions { align-items: center; }
+.now { display: flex; align-items: center; gap: 10px; margin-right: 6px; }
+.clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; white-space: nowrap; }
+#clockTime { font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+#clockDate { font-size: .75rem; color: var(--muted); }
+.wx-wrap { position: relative; }
+.weather { display: flex; align-items: center; gap: 4px; font-weight: 600; white-space: nowrap; }
+#wxIcon { font-size: 1.1rem; }
+.wx-panel { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 280px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.18); display: flex; flex-direction: column; gap: 8px; }
+.wx-place { margin: 0; font-size: .85rem; color: var(--muted); }
+.wx-form { display: flex; gap: 6px; }
+.wx-form input { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: transparent; }
+.wx-row { display: flex; align-items: center; gap: 12px; font-size: .85rem; }
+.wx-credit { margin-left: auto; font-size: .72rem; color: var(--muted); }
+.wx-msg { margin: 0; font-size: .8rem; color: var(--muted); min-height: 1em; }
+.wx-msg:empty { display: none; }
+@media (max-width: 640px) {
+  .top { flex-wrap: wrap; gap: 10px; }
+  .top-actions { width: 100%; flex-wrap: wrap; gap: 8px; }
+  .now { margin-right: auto; }
+  .top-actions > button { padding: 6px 10px; }
+  .clock { align-items: flex-start; }
+  .wx-panel { right: auto; left: 0; width: min(280px, calc(100vw - 32px)); }
+}

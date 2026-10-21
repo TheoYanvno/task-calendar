@@ -99,3 +99,10 @@ body, .top, .day, .primary { transition: background-color .3s ease, color .3s ea
   .clock { align-items: flex-start; }
   .wx-panel { right: auto; left: 0; width: min(280px, calc(100vw - 32px)); }
 }
+
+/* Email reminders */
+.mail { text-decoration: none; font-size: 1rem; padding: 2px 4px; border-radius: 6px; opacity: .65; }
+.mail:hover, .mail:focus-visible { opacity: 1; background: rgba(127,127,127,.15); }
+.mail-help summary { cursor: pointer; font-weight: 600; }
+.mail-help p { font-size: .85rem; line-height: 1.5; margin: 10px 0 0; }
+.mail-help .muted { color: var(--muted); }

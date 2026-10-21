@@ -94,3 +94,30 @@ export function toIcs(tasks) {
 
 /** A Google Maps search link for a task's location (works for addresses, places and businesses). */
 export const mapLink = (location) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+
+/**
+ * A Google Calendar link that opens a new event filled in with the task. Saved there, Google sends the
+ * email reminder (this site has no server, so it can't send email itself).
+ * Timed tasks become 30-minute events; tasks without a time become all-day events.
+ */
+export function googleCalendarUrl(task, key = task.date, timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
+  const repeating = task.repeat && task.repeat !== 'none';
+  const start = repeating ? task.date : key;            // a series starts at its first day
+  const day = start.replace(/-/g, '');
+  let dates;
+  if (task.time) {
+    const [h, m] = task.time.split(':').map(Number);
+    const end = new Date(2000, 0, 1, h, m + 30);
+    const endDay = end.getDate() > 1 ? addDays(start, 1).replace(/-/g, '') : day;   // 11:45 PM ends tomorrow
+    const hhmm = (x, y) => `${String(x).padStart(2, '0')}${String(y).padStart(2, '0')}00`;
+    dates = `${day}T${hhmm(h, m)}/${endDay}T${hhmm(end.getHours(), end.getMinutes())}`;
+  } else {
+    dates = `${day}/${addDays(start, 1).replace(/-/g, '')}`;
+  }
+  const rule = { daily: 'FREQ=DAILY', weekdays: 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR', weekly: 'FREQ=WEEKLY', monthly: 'FREQ=MONTHLY' }[task.repeat];
+  const params = new URLSearchParams({ action: 'TEMPLATE', text: task.title, dates, ctz: timeZone });
+  params.set('details', [task.notes, `Priority: ${task.priority}`, 'Added from Task Calendar'].filter(Boolean).join('\n'));
+  if (task.location) params.set('location', task.location);
+  if (rule) params.set('recur', `RRULE:${rule}`);
+  return `https://calendar.google.com/calendar/render?${params}`;
+}

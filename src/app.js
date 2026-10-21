@@ -1,6 +1,7 @@
 import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, upcoming, newTask, toIcs, mapLink } from './tasks.js';
 import { holidaysOn } from './holidays.js';
 import { themeFor } from './themes.js';
+import { forecastUrl, geocodeUrl, parsePlace, pickPlace, readCurrent, isFresh, STALE_AFTER } from './weather.js';
 
 const $ = (id) => document.getElementById(id);
 const KEY = 'task-calendar';
@@ -163,5 +164,95 @@ let savedTheme = null; try { savedTheme = localStorage.getItem('tc-theme'); } ca
 setTheme(savedTheme ? savedTheme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches);
 $('theme').onclick = () => setTheme(!document.documentElement.classList.contains('dark'));
 $('seasonal').onclick = () => { seasonal = !seasonal; try { localStorage.setItem('tc-seasonal', seasonal ? 'on' : 'off'); } catch {} applySeasonal(); };
+
+// ---- Clock and weather (top corner) ----
+function tickClock() {
+  const now = new Date();
+  $('clockTime').textContent = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  $('clockDate').textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  if (toKey(now) !== todayKey) location.reload();   // past midnight: "today" moves on
+}
+tickClock();
+setInterval(tickClock, 15_000);
+
+const WX = 'tc-weather';
+let wx = {}; try { wx = JSON.parse(localStorage.getItem(WX)) ?? {}; } catch {}
+const saveWx = () => { try { localStorage.setItem(WX, JSON.stringify(wx)); } catch {} };
+const wxMsg = (text) => { $('wxMsg').textContent = text; };
+
+function showWeather() {
+  const d = wx.last?.data;
+  $('wxPlace').textContent = wx.place ? `Showing weather for ${wx.place.name}` : 'Show the weather where you are.';
+  if (!wx.place) { $('wxIcon').textContent = '🌡️'; $('wxText').textContent = 'Add weather'; return; }
+  if (!d) { $('wxIcon').textContent = '⏳'; $('wxText').textContent = 'Loading…'; return; }
+  $('wxIcon').textContent = d.emoji;
+  $('wxText').textContent = `${d.temp}${d.unit}`;
+  $('weatherBtn').title = `${d.label}, ${d.temp}${d.unit} in ${wx.place.name}`;
+}
+
+async function loadWeather(force = false) {
+  if (!wx.place) return showWeather();
+  if (!force && isFresh(wx.last) && wx.last.unit === (wx.unit ?? 'fahrenheit')) return showWeather();
+  showWeather();
+  try {
+    const res = await fetch(forecastUrl(wx.place.lat, wx.place.lon, wx.unit ?? 'fahrenheit'));
+    if (!res.ok) throw new Error(res.statusText);
+    wx.last = { at: Date.now(), unit: wx.unit ?? 'fahrenheit', data: readCurrent(await res.json()) };
+    saveWx();
+  } catch {
+    if (!wx.last) { $('wxIcon').textContent = '⚠️'; $('wxText').textContent = 'No weather'; return; }
+  }
+  showWeather();
+}
+
+function setPlace(place) {
+  wx.place = place; wx.last = null; saveWx();
+  wxMsg(''); loadWeather(true);
+}
+
+$('weatherBtn').onclick = () => {
+  const open = $('wxPanel').hidden;
+  $('wxPanel').hidden = !open;
+  $('weatherBtn').setAttribute('aria-expanded', String(open));
+  if (open) $('wxCity').focus();
+};
+document.addEventListener('click', (e) => {
+  if (!$('wxPanel').hidden && !e.target.closest('.wx-wrap')) { $('wxPanel').hidden = true; $('weatherBtn').setAttribute('aria-expanded', 'false'); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('wxPanel').hidden) { $('wxPanel').hidden = true; $('weatherBtn').focus(); } });
+
+$('wxLocate').onclick = () => {
+  if (!navigator.geolocation) return wxMsg('Your browser can’t share its location. Type a city instead.');
+  wxMsg('Asking your browser for your location…');
+  navigator.geolocation.getCurrentPosition(
+    (pos) => setPlace({ name: 'your location', lat: pos.coords.latitude, lon: pos.coords.longitude }),
+    () => wxMsg('Location wasn’t shared. Type a city instead.'),
+    { timeout: 10_000, maximumAge: 30 * 60_000 },
+  );
+};
+
+$('wxForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const { name, hint } = parsePlace($('wxCity').value);
+  if (!name) return;
+  wxMsg('Looking it up…');
+  try {
+    const res = await fetch(geocodeUrl(name));
+    const place = pickPlace((await res.json()).results, hint);
+    if (!place) return wxMsg(`Couldn’t find “${name}”. Try adding the state, e.g. “Springfield, IL”.`);
+    $('wxCity').value = '';
+    setPlace(place);
+  } catch {
+    wxMsg('Couldn’t look that up right now. Check your connection.');
+  }
+};
+
+document.querySelectorAll('input[name=wxUnit]').forEach((r) => {
+  r.checked = r.value === (wx.unit ?? 'fahrenheit');
+  r.onchange = () => { wx.unit = r.value; saveWx(); loadWeather(true); };
+});
+
+loadWeather();
+setInterval(() => loadWeather(), STALE_AFTER);
 
 render();

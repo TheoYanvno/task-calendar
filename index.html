@@ -10,6 +10,28 @@
   <header class="top">
     <div class="brand"><h1>Task Calendar</h1> <span id="themeBadge" class="theme-badge" hidden></span></div>
     <div class="top-actions">
+      <div class="now" aria-label="Current time and weather">
+        <div class="clock"><span id="clockTime"></span><span id="clockDate"></span></div>
+        <div class="wx-wrap">
+          <button id="weatherBtn" class="weather" aria-expanded="false" aria-controls="wxPanel" title="Weather">
+            <span id="wxIcon" aria-hidden="true">🌡️</span> <span id="wxText">Add weather</span>
+          </button>
+          <div id="wxPanel" class="wx-panel" hidden>
+            <p class="wx-place" id="wxPlace"></p>
+            <button id="wxLocate" type="button">📍 Use my location</button>
+            <form id="wxForm" class="wx-form">
+              <input id="wxCity" placeholder="or type a city, e.g. Austin, TX" autocomplete="off" aria-label="City">
+              <button class="primary">Set</button>
+            </form>
+            <div class="wx-row">
+              <label><input type="radio" name="wxUnit" value="fahrenheit" checked> °F</label>
+              <label><input type="radio" name="wxUnit" value="celsius"> °C</label>
+              <a href="https://open-meteo.com/" target="_blank" rel="noopener" class="wx-credit">Weather by Open-Meteo</a>
+            </div>
+            <p id="wxMsg" class="wx-msg" role="status"></p>
+          </div>
+        </div>
+      </div>
       <button id="seasonal" aria-label="Monthly holiday theme" aria-pressed="true">🎨</button>
       <button id="theme" aria-label="Toggle dark mode">🌙</button>
       <button id="export">Export .ics</button>

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { monthGrid, occursOn, tasksOn, toggle, overdue, upcoming, newTask, toIcs, addDays, mapLink } from '../src/tasks.js';
+import { monthGrid, occursOn, tasksOn, toggle, overdue, upcoming, newTask, toIcs, addDays, mapLink, googleCalendarUrl } from '../src/tasks.js';
 
 const t = (o) => ({ id: o.title, done: false, doneDates: [], priority: 'medium', repeat: 'none', time: '', notes: '', ...o });
 
@@ -62,4 +62,22 @@ test('tasks can have a location, exported to .ics and linked to Google Maps', ()
   assert.ok(toIcs([task]).includes('LOCATION:12 Main St\\, Springfield\\; Suite 4'));
   assert.strictEqual(mapLink('Central Park, NY'), 'https://www.google.com/maps/search/?api=1&query=Central%20Park%2C%20NY');
   assert.strictEqual(newTask({ title: 'x', date: '2026-10-22' }).location, '');
+});
+
+test('email reminders: a Google Calendar link with the task filled in', () => {
+  const q = (url) => Object.fromEntries(new URL(url).searchParams);
+  const timed = q(googleCalendarUrl(newTask({ title: 'Dentist', date: '2026-10-22', time: '09:30', location: 'Main St Dental', notes: 'Bring forms' }), '2026-10-22', 'America/New_York'));
+  assert.strictEqual(timed.action, 'TEMPLATE');
+  assert.strictEqual(timed.text, 'Dentist');
+  assert.strictEqual(timed.dates, '20261022T093000/20261022T100000');
+  assert.strictEqual(timed.ctz, 'America/New_York');
+  assert.strictEqual(timed.location, 'Main St Dental');
+  assert.ok(timed.details.startsWith('Bring forms'));
+  const allDay = q(googleCalendarUrl(newTask({ title: 'Rent', date: '2026-10-31' })));
+  assert.strictEqual(allDay.dates, '20261031/20261101');
+  const late = q(googleCalendarUrl(newTask({ title: 'Late', date: '2026-12-31', time: '23:45' })));
+  assert.strictEqual(late.dates, '20261231T234500/20270101T001500', 'ends after midnight');
+  const series = q(googleCalendarUrl(newTask({ title: 'Gym', date: '2026-10-19', time: '06:30', repeat: 'weekdays' }), '2026-10-23'));
+  assert.strictEqual(series.recur, 'RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR');
+  assert.ok(series.dates.startsWith('20261019T'), 'series starts on its first day');
 });

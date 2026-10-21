@@ -1,4 +1,4 @@
-import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, upcoming, newTask, toIcs } from './tasks.js';
+import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, upcoming, newTask, toIcs, mapLink } from './tasks.js';
 import { holidaysOn } from './holidays.js';
 import { themeFor } from './themes.js';
 
@@ -52,7 +52,7 @@ function renderCalendar() {
     const holiday = hols.length ? `<span class="holiday" title="${esc(hols.map((h) => h.name).join(', '))}"><span aria-hidden="true">${hols[0].emoji}</span><span class="h-name"> ${esc(hols[0].name)}</span></span>` : '';
     const chips = list.slice(0, 3).map((t) => {
       const draggable = t.repeat === 'none' ? 'draggable="true"' : '';
-      return `<span class="chip ${t.priority} ${t.completed ? 'done' : ''}" ${draggable} data-id="${t.id}" title="${esc(t.title)}">${esc(t.title)}</span>`;
+      return `<span class="chip ${t.priority} ${t.completed ? 'done' : ''}" ${draggable} data-id="${t.id}" title="${esc(t.title + (t.location ? ` · ${t.location}` : ''))}">${esc(t.title)}</span>`;
     }).join('');
     const more = list.length > 3 ? `<span class="more">+${list.length - 3} more</span>` : '';
     const holidayLabel = hols.length ? `, ${hols.map((h) => h.name).join(', ')}` : '';
@@ -66,6 +66,7 @@ const taskItem = (t, key, showDate = false) => `
     <span class="t-body">
       <span class="t-title">${esc(t.title)}</span>
       <span class="t-meta">${[showDate && fmtDay(key, { weekday: 'short', month: 'short', day: 'numeric' }), fmtTime(t.time), repeatLabel[t.repeat]].filter(Boolean).join(' · ')}</span>
+      ${t.location ? `<a class="t-loc" href="${esc(mapLink(t.location))}" target="_blank" rel="noopener" title="Open in Google Maps">📍 ${esc(t.location)}</a>` : ''}
     </span>
     <button class="del" data-del="${t.id}" aria-label="Delete ${esc(t.title)}">✕</button>
   </li>`;
@@ -108,8 +109,8 @@ $('grid').addEventListener('click', (e) => {
 
 $('addForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  tasks.push(newTask({ title: $('title').value, date: selected, time: $('time').value, priority: $('priority').value, repeat: $('repeat').value }));
-  $('title').value = ''; $('time').value = ''; $('repeat').value = 'none';
+  tasks.push(newTask({ title: $('title').value, date: selected, time: $('time').value, priority: $('priority').value, repeat: $('repeat').value, location: $('location').value }));
+  $('title').value = ''; $('time').value = ''; $('repeat').value = 'none'; $('location').value = '';
   render();
 });
 

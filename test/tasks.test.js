@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { monthGrid, occursOn, tasksOn, toggle, overdue, upcoming, newTask, toIcs, addDays } from '../src/tasks.js';
+import { monthGrid, occursOn, tasksOn, toggle, overdue, upcoming, newTask, toIcs, addDays, mapLink } from '../src/tasks.js';
 
 const t = (o) => ({ id: o.title, done: false, doneDates: [], priority: 'medium', repeat: 'none', time: '', notes: '', ...o });
 
@@ -54,4 +54,12 @@ test('iCalendar export', () => {
   assert.match(ics, /DTSTART:20261014T093000/);
   assert.match(ics, /RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR/);
   assert.match(ics, /SUMMARY:Standup\\, daily/);
+});
+
+test('tasks can have a location, exported to .ics and linked to Google Maps', () => {
+  const task = newTask({ title: 'Dentist', date: '2026-10-22', time: '09:30', location: '  12 Main St, Springfield; Suite 4 ' });
+  assert.strictEqual(task.location, '12 Main St, Springfield; Suite 4');
+  assert.ok(toIcs([task]).includes('LOCATION:12 Main St\\, Springfield\\; Suite 4'));
+  assert.strictEqual(mapLink('Central Park, NY'), 'https://www.google.com/maps/search/?api=1&query=Central%20Park%2C%20NY');
+  assert.strictEqual(newTask({ title: 'x', date: '2026-10-22' }).location, '');
 });

@@ -66,11 +66,11 @@ export function upcoming(tasks, today, days = 7) {
   return out;
 }
 
-export function newTask({ title, date, time = '', priority = 'medium', repeat = 'none', notes = '' }) {
+export function newTask({ title, date, time = '', priority = 'medium', repeat = 'none', notes = '', location = '' }) {
   if (!title?.trim()) throw new Error('A task needs a title');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('A task needs a date');
   const id = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
-  return { id, title: title.trim(), date, time, priority, repeat, notes: notes.trim(), done: false, doneDates: [] };
+  return { id, title: title.trim(), date, time, priority, repeat, notes: notes.trim(), location: location.trim().slice(0, 200), done: false, doneDates: [] };
 }
 
 /** Export to iCalendar (.ics) so tasks can be imported into Google, Apple or Outlook calendars. */
@@ -85,8 +85,12 @@ export function toIcs(tasks) {
     else lines.push(`DTSTART;VALUE=DATE:${day}`);
     if (rule[t.repeat]) lines.push(`RRULE:${rule[t.repeat]}`);
     if (t.notes) lines.push(`DESCRIPTION:${esc(t.notes)}`);
+    if (t.location) lines.push(`LOCATION:${esc(t.location)}`);
     lines.push('END:VEVENT');
   }
   lines.push('END:VCALENDAR');
   return lines.join('\r\n');
 }
+
+/** A Google Maps search link for a task's location (works for addresses, places and businesses). */
+export const mapLink = (location) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;

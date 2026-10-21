@@ -1,4 +1,5 @@
 import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, upcoming, newTask, toIcs } from './tasks.js';
+import { holidaysOn } from './holidays.js';
 
 const $ = (id) => document.getElementById(id);
 const KEY = 'task-calendar';
@@ -27,13 +28,16 @@ function renderCalendar() {
   $('grid').innerHTML = monthGrid(viewYear, viewMonth).map((key) => {
     const list = tasksOn(tasks, key);
     const d = fromKey(key);
-    const cls = ['day', d.getMonth() !== viewMonth && 'other', key === todayKey && 'today', key === selected && 'selected'].filter(Boolean).join(' ');
+    const hols = holidaysOn(key);
+    const cls = ['day', d.getMonth() !== viewMonth && 'other', key === todayKey && 'today', key === selected && 'selected', hols.some((h) => h.federal) && 'dayoff'].filter(Boolean).join(' ');
+    const holiday = hols.length ? `<span class="holiday" title="${esc(hols.map((h) => h.name).join(', '))}"><span aria-hidden="true">${hols[0].emoji}</span><span class="h-name"> ${esc(hols[0].name)}</span></span>` : '';
     const chips = list.slice(0, 3).map((t) => {
       const draggable = t.repeat === 'none' ? 'draggable="true"' : '';
       return `<span class="chip ${t.priority} ${t.completed ? 'done' : ''}" ${draggable} data-id="${t.id}" title="${esc(t.title)}">${esc(t.title)}</span>`;
     }).join('');
     const more = list.length > 3 ? `<span class="more">+${list.length - 3} more</span>` : '';
-    return `<button class="${cls}" data-key="${key}" aria-label="${fmtDay(key)}, ${list.length} tasks"><span class="num">${d.getDate()}</span>${chips}${more}</button>`;
+    const holidayLabel = hols.length ? `, ${hols.map((h) => h.name).join(', ')}` : '';
+    return `<button class="${cls}" data-key="${key}" aria-label="${fmtDay(key)}${esc(holidayLabel)}, ${list.length} tasks"><span class="num">${d.getDate()}</span>${holiday}${chips}${more}</button>`;
   }).join('');
 }
 
@@ -49,6 +53,9 @@ const taskItem = (t, key, showDate = false) => `
 
 function renderDay() {
   $('dayLabel').textContent = selected === todayKey ? `Today, ${fmtDay(selected, { month: 'long', day: 'numeric' })}` : fmtDay(selected);
+  const hols = holidaysOn(selected);
+  $('dayHoliday').hidden = !hols.length;
+  $('dayHoliday').textContent = hols.map((h) => `${h.emoji} ${h.name}${h.federal ? ' · federal holiday' : ''}`).join('  ·  ');
   const list = tasksOn(tasks, selected);
   $('dayTasks').innerHTML = list.map((t) => taskItem(t, selected)).join('') || '<li class="empty">No tasks. Enjoy the free time, or add one above.</li>';
 }
@@ -62,7 +69,7 @@ function renderView() {
   } else {
     const days = upcoming(tasks, todayKey, 7);
     $('viewList').innerHTML = days.map(({ key, list }) => `
-      <div class="group"><h3>${key === todayKey ? 'Today' : fmtDay(key, { weekday: 'long', month: 'short', day: 'numeric' })}</h3>
+      <div class="group"><h3>${key === todayKey ? 'Today' : fmtDay(key, { weekday: 'long', month: 'short', day: 'numeric' })}${holidaysOn(key).map((h) => ` <span class="h-tag">${h.emoji} ${esc(h.name)}</span>`).join('')}</h3>
       <ul class="tasks">${list.map((t) => taskItem(t, key)).join('')}</ul></div>`).join('') || '<p class="empty">Nothing planned this week.</p>';
   }
 }

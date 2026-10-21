@@ -56,3 +56,16 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 .day-holiday { margin: -4px 0 10px; font-size: .85rem; color: var(--accent); font-weight: 600; }
 .h-tag { font-size: .75rem; font-weight: 600; color: var(--accent); margin-left: 6px; }
 @media (max-width: 900px) { .holiday .h-name { display: none; } }
+
+/* Monthly holiday themes */
+:root.seasonal { --accent: var(--theme-accent); --today: var(--theme-tint); }
+:root.seasonal.dark { --accent: var(--theme-night); --today: color-mix(in srgb, var(--theme-night) 22%, var(--panel)); }
+:root.seasonal.dark .primary, :root.seasonal.dark .views button[aria-selected="true"] { color: #0f172a; }
+:root.seasonal .top { background: linear-gradient(100deg, color-mix(in srgb, var(--today) 85%, var(--panel)) 0%, var(--panel) 70%); }
+:root.seasonal .calendar { border-top: 4px solid var(--accent); }
+.brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.theme-badge { font-size: .85rem; font-weight: 600; color: var(--accent); }
+#seasonal[aria-pressed="false"] { opacity: .5; }
+body, .top, .day, .primary { transition: background-color .3s ease, color .3s ease; }
+.calendar { position: relative; }
+:root.seasonal .calendar::after { content: attr(data-emoji); position: absolute; right: 16px; bottom: 6px; font-size: 1.9rem; opacity: .45; pointer-events: none; }

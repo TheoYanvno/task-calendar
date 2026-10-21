@@ -25,12 +25,13 @@
       </div>
       <div class="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
       <div id="grid" class="grid"></div>
-      <p class="hint">Tip: drag a task onto another day to reschedule it.</p>
+      <p class="hint">Tip: drag a task onto another day to reschedule it. Shaded days are federal holidays.</p>
     </section>
 
     <aside class="side">
       <section class="panel">
         <h2 id="dayLabel"></h2>
+        <p id="dayHoliday" class="day-holiday" hidden></p>
         <form id="addForm" class="add">
           <input id="title" placeholder="Add a task…" required autocomplete="off" aria-label="Task title">
           <div class="row">

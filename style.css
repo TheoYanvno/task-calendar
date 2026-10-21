@@ -48,3 +48,11 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 @keyframes slide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .day { min-height: 62px; } .chip { font-size: 0; padding: 0; height: 6px; border-left-width: 0; background: var(--medium); } .chip.high { background: var(--high); } .chip.low { background: var(--low); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+
+/* Holidays */
+.day.dayoff { background: color-mix(in srgb, var(--accent) 7%, var(--panel)); }
+.day.today.dayoff { background: var(--today); }
+.holiday { font-size: .68rem; font-weight: 600; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-holiday { margin: -4px 0 10px; font-size: .85rem; color: var(--accent); font-weight: 600; }
+.h-tag { font-size: .75rem; font-weight: 600; color: var(--accent); margin-left: 6px; }
+@media (max-width: 900px) { .holiday .h-name { display: none; } }

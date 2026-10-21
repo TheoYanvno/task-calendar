@@ -28,7 +28,7 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 .hint { font-size: .8rem; color: var(--muted); margin: 10px 0 0; }
 .side { display: flex; flex-direction: column; gap: 16px; }
 .panel h2 { margin: 0 0 10px; font-size: 1.05rem; }
-.add input#title { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; }
+.add input#title, .add input#location { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; }
 .add .row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .add .row input, .add .row select { padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: transparent; flex: 1; min-width: 0; }
 .tasks { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -69,3 +69,6 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 body, .top, .day, .primary { transition: background-color .3s ease, color .3s ease; }
 .calendar { position: relative; }
 :root.seasonal .calendar::after { content: attr(data-emoji); position: absolute; right: 16px; bottom: 6px; font-size: 1.9rem; opacity: .45; pointer-events: none; }
+.add input#location { margin-top: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; font-size: .9rem; }
+.t-loc { display: block; font-size: .78rem; color: var(--accent); text-decoration: none; overflow-wrap: anywhere; margin-top: 1px; }
+.t-loc:hover { text-decoration: underline; }

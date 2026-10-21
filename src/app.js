@@ -1,5 +1,6 @@
 import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, upcoming, newTask, toIcs } from './tasks.js';
 import { holidaysOn } from './holidays.js';
+import { themeFor } from './themes.js';
 
 const $ = (id) => document.getElementById(id);
 const KEY = 'task-calendar';
@@ -23,7 +24,25 @@ const fmtDay = (key, opts = { weekday: 'long', month: 'long', day: 'numeric' }) 
 const fmtTime = (t) => (t ? new Date(`2000-01-01T${t}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : '');
 const repeatLabel = { daily: 'Every day', weekdays: 'Weekdays', weekly: 'Every week', monthly: 'Every month' };
 
+// Seasonal theme: colors follow the month on screen (January fireworks, October pumpkins…)
+let seasonal = true; try { seasonal = localStorage.getItem('tc-seasonal') !== 'off'; } catch {}
+function applySeasonal() {
+  const t = themeFor(viewMonth);
+  const root = document.documentElement;
+  root.classList.toggle('seasonal', seasonal);
+  root.style.setProperty('--theme-accent', t.accent);
+  root.style.setProperty('--theme-tint', t.tint);
+  root.style.setProperty('--theme-night', t.night);
+  document.querySelector('.calendar').dataset.emoji = t.emoji;
+  $('themeBadge').hidden = !seasonal;
+  $('themeBadge').textContent = `${t.emoji} ${t.holiday}`;
+  $('themeBadge').title = `${t.month} theme: ${t.holiday}`;
+  $('seasonal').setAttribute('aria-pressed', String(seasonal));
+  $('seasonal').title = seasonal ? 'Turn off the monthly holiday theme' : 'Turn on the monthly holiday theme';
+}
+
 function renderCalendar() {
+  applySeasonal();
   $('monthLabel').textContent = new Date(viewYear, viewMonth, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   $('grid').innerHTML = monthGrid(viewYear, viewMonth).map((key) => {
     const list = tasksOn(tasks, key);
@@ -142,5 +161,6 @@ const setTheme = (dark) => { document.documentElement.classList.toggle('dark', d
 let savedTheme = null; try { savedTheme = localStorage.getItem('tc-theme'); } catch {}
 setTheme(savedTheme ? savedTheme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches);
 $('theme').onclick = () => setTheme(!document.documentElement.classList.contains('dark'));
+$('seasonal').onclick = () => { seasonal = !seasonal; try { localStorage.setItem('tc-seasonal', seasonal ? 'on' : 'off'); } catch {} applySeasonal(); };
 
 render();

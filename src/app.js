@@ -35,11 +35,19 @@ function applySeasonal() {
   root.style.setProperty('--theme-tint', t.tint);
   root.style.setProperty('--theme-night', t.night);
   document.querySelector('.calendar').dataset.emoji = t.emoji;
+  root.style.setProperty('--theme-pattern', `url("${emojiTile(t.emoji)}")`);
   $('themeBadge').hidden = !seasonal;
   $('themeBadge').textContent = `${t.emoji} ${t.holiday}`;
   $('themeBadge').title = `${t.month} theme: ${t.holiday}`;
   $('seasonal').setAttribute('aria-pressed', String(seasonal));
   $('seasonal').title = seasonal ? 'Turn off the monthly holiday theme' : 'Turn on the monthly holiday theme';
+}
+
+// A tile with the month's emoji, repeated across the calendar background (two per tile, offset like wallpaper)
+function emojiTile(emoji) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">`
+    + `<text x="18" y="44" font-size="30">${emoji}</text><text x="78" y="104" font-size="30">${emoji}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 function renderCalendar() {

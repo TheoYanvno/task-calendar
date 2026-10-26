@@ -64,6 +64,20 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 :root.seasonal.dark .primary, :root.seasonal.dark .views button[aria-selected="true"] { color: #0f172a; }
 :root.seasonal .top { background: linear-gradient(100deg, color-mix(in srgb, var(--today) 85%, var(--panel)) 0%, var(--panel) 70%); }
 :root.seasonal .calendar { border-top: 4px solid var(--accent); }
+/* The theme fills the calendar: a wash of the month's color with its emoji repeated like wallpaper.
+   Days are slightly see-through so the wallpaper shows between and behind them. */
+:root.seasonal .calendar { background:
+    linear-gradient(160deg, var(--theme-tint), var(--panel) 80%); }
+:root.seasonal.dark .calendar { background:
+    linear-gradient(160deg, color-mix(in srgb, var(--theme-night) 22%, var(--panel)), var(--panel) 80%); }
+:root.seasonal .calendar::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: var(--theme-pattern) 0 0 / 120px 120px; opacity: .16; }
+:root.seasonal.dark .calendar::before { opacity: .12; }
+:root.seasonal .calendar > * { position: relative; }
+:root.seasonal .day { background: color-mix(in srgb, var(--panel) 80%, transparent); backdrop-filter: blur(1.5px); }
+:root.seasonal .day.dayoff { background: color-mix(in srgb, var(--accent) 12%, color-mix(in srgb, var(--panel) 80%, transparent)); }
+:root.seasonal .day.today { background: color-mix(in srgb, var(--today) 90%, transparent); }
+:root.seasonal .day.other { opacity: .55; }
 .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .theme-badge { font-size: .85rem; font-weight: 600; color: var(--accent); }
 #seasonal[aria-pressed="false"] { opacity: .5; }

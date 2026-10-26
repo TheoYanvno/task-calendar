@@ -41,11 +41,8 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 .t-meta { font-size: .75rem; color: var(--muted); }
 .task .del { border: 0; background: transparent; color: var(--muted); padding: 2px 6px; }
 .empty { color: var(--muted); font-size: .9rem; }
-.views { display: flex; gap: 6px; margin-bottom: 10px; }
-.views button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; }
 .badge { background: var(--high); color: #fff; border-radius: 999px; padding: 0 6px; font-size: .75rem; }
 .badge:empty { display: none; }
-.group h3 { font-size: .85rem; color: var(--muted); margin: 10px 0 4px; }
 @keyframes slide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .day { min-height: 62px; } .chip { font-size: 0; padding: 0; height: 6px; border-left-width: 0; background: var(--medium); } .chip.high { background: var(--high); } .chip.low { background: var(--low); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
@@ -61,7 +58,7 @@ button { cursor: pointer; border: 1px solid var(--line); background: var(--panel
 /* Monthly holiday themes */
 :root.seasonal { --accent: var(--theme-accent); --today: var(--theme-tint); }
 :root.seasonal.dark { --accent: var(--theme-night); --today: color-mix(in srgb, var(--theme-night) 22%, var(--panel)); }
-:root.seasonal.dark .primary, :root.seasonal.dark .views button[aria-selected="true"] { color: #0f172a; }
+:root.seasonal.dark .primary { color: #0f172a; }
 :root.seasonal .top { background: linear-gradient(100deg, color-mix(in srgb, var(--today) 85%, var(--panel)) 0%, var(--panel) 70%); }
 :root.seasonal .calendar { border-top: 4px solid var(--accent); }
 /* The theme fills the calendar: a wash of the month's color with its emoji repeated like wallpaper.
@@ -120,3 +117,18 @@ body, .top, .day, .primary { transition: background-color .3s ease, color .3s ea
 .mail-help summary { cursor: pointer; font-weight: 600; }
 .mail-help p { font-size: .85rem; line-height: 1.5; margin: 10px 0 0; }
 .mail-help .muted { color: var(--muted); }
+
+/* This month */
+.highlights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.hl { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: transparent; }
+.hl:hover, .hl:focus-visible { border-color: var(--accent); }
+.hl-holiday { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.hl-date { display: flex; flex-direction: column; align-items: center; min-width: 38px; font-size: .68rem; text-transform: uppercase; color: var(--muted); line-height: 1.1; }
+.hl-date b { font-size: 1.2rem; color: var(--accent); }
+.hl-body { display: flex; flex-direction: column; min-width: 0; }
+.hl-title { font-weight: 600; overflow-wrap: anywhere; }
+.hl-meta { font-size: .75rem; color: var(--muted); }
+.hl.past { opacity: .55; } .hl.done .hl-title { text-decoration: line-through; }
+.overdue { margin-bottom: 10px; border-radius: 10px; padding: 8px 10px; background: color-mix(in srgb, var(--high) 12%, transparent); border: 1px solid color-mix(in srgb, var(--high) 40%, transparent); }
+.overdue summary { cursor: pointer; font-weight: 600; color: var(--high); }
+.muted { color: var(--muted); } .small { font-size: .78rem; margin: 10px 0 0; }

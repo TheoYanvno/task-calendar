@@ -73,12 +73,11 @@
         <ul id="dayTasks" class="tasks"></ul>
       </section>
 
-      <section class="panel">
-        <div class="views" role="tablist">
-          <button data-view="upcoming" aria-selected="true">Next 7 days</button>
-          <button data-view="overdue" aria-selected="false">Overdue <span id="overdueCount" class="badge"></span></button>
-        </div>
-        <div id="viewList"></div>
+      <section class="panel month-panel" aria-labelledby="monthTitle">
+        <h2 id="monthTitle">This month</h2>
+        <div id="overdueAlert"></div>
+        <ul id="monthList" class="highlights"></ul>
+        <p class="muted small">Holidays and your high-priority tasks. Mark a task High to see it here.</p>
       </section>
 
       <details class="panel mail-help">

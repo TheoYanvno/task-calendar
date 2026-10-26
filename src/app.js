@@ -1,4 +1,5 @@
-import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, upcoming, newTask, toIcs, mapLink, googleCalendarUrl } from './tasks.js';
+import { toKey, fromKey, monthGrid, tasksOn, toggle, overdue, newTask, toIcs, mapLink, googleCalendarUrl } from './tasks.js';
+import { monthHighlights } from './month.js';
 import { holidaysOn } from './holidays.js';
 import { themeFor } from './themes.js';
 import { forecastUrl, geocodeUrl, parsePlace, pickPlace, readCurrent, isFresh, STALE_AFTER } from './weather.js';
@@ -12,7 +13,6 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>'
 const todayKey = toKey(new Date());
 let selected = todayKey;
 let viewYear = new Date().getFullYear(), viewMonth = new Date().getMonth();
-let view = 'upcoming';
 
 // A few example tasks on first visit so the calendar isn't empty
 let tasks = load() ?? [
@@ -90,21 +90,31 @@ function renderDay() {
   $('dayTasks').innerHTML = list.map((t) => taskItem(t, selected)).join('') || '<li class="empty">No tasks. Enjoy the free time, or add one above.</li>';
 }
 
-function renderView() {
+// This month: holidays and high-priority tasks for the month on screen, plus a warning for anything overdue
+function renderMonth() {
+  const monthName = new Date(viewYear, viewMonth, 1).toLocaleDateString(undefined, { month: 'long' });
+  $('monthTitle').textContent = `This month: ${monthName}`;
   const late = overdue(tasks, todayKey);
-  $('overdueCount').textContent = late.length || '';
-  document.querySelectorAll('.views button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === view)));
-  if (view === 'overdue') {
-    $('viewList').innerHTML = late.length ? `<ul class="tasks">${late.map((t) => taskItem({ ...t, completed: false }, t.date, true)).join('')}</ul>` : '<p class="empty">Nothing overdue. Nice work!</p>';
-  } else {
-    const days = upcoming(tasks, todayKey, 7);
-    $('viewList').innerHTML = days.map(({ key, list }) => `
-      <div class="group"><h3>${key === todayKey ? 'Today' : fmtDay(key, { weekday: 'long', month: 'short', day: 'numeric' })}${holidaysOn(key).map((h) => ` <span class="h-tag">${h.emoji} ${esc(h.name)}</span>`).join('')}</h3>
-      <ul class="tasks">${list.map((t) => taskItem(t, key)).join('')}</ul></div>`).join('') || '<p class="empty">Nothing planned this week.</p>';
-  }
+  $('overdueAlert').innerHTML = late.length ? `<details class="overdue">
+      <summary>⚠️ ${late.length} overdue task${late.length > 1 ? 's' : ''}</summary>
+      <ul class="tasks">${late.map((t) => taskItem({ ...t, completed: false }, t.date, true)).join('')}</ul></details>` : '';
+  const items = monthHighlights(tasks, viewYear, viewMonth);
+  $('monthList').innerHTML = items.map((x) => {
+    const d = fromKey(x.key);
+    const past = x.key < todayKey ? ' past' : '';
+    const date = `<span class="hl-date"><b>${d.getDate()}</b>${d.toLocaleDateString(undefined, { weekday: 'short' })}</span>`;
+    if (x.type === 'holiday') {
+      return `<li><button class="hl hl-holiday${past}" data-goto="${x.key}">${date}<span class="hl-body"><span class="hl-title">${x.emoji} ${esc(x.name)}</span>`
+        + `<span class="hl-meta">${x.federal ? 'Federal holiday' : 'Holiday'}</span></span></button></li>`;
+    }
+    const t = x.task;
+    const meta = [fmtTime(t.time), x.times > 1 ? `${repeatLabel[t.repeat]} · ${x.times} times this month` : '', t.location && `📍 ${esc(t.location)}`].filter(Boolean).join(' · ');
+    return `<li><button class="hl hl-task${past}${tasksOn(tasks, x.key).find((y) => y.id === t.id)?.completed ? ' done' : ''}" data-goto="${x.key}">${date}`
+      + `<span class="hl-body"><span class="hl-title">⭐ ${esc(t.title)}</span>${meta ? `<span class="hl-meta">${meta}</span>` : ''}</span></button></li>`;
+  }).join('') || '<li class="empty">Nothing important yet this month.</li>';
 }
 
-function render() { renderCalendar(); renderDay(); renderView(); save(); }
+function render() { renderCalendar(); renderDay(); renderMonth(); save(); }
 
 // ---- Events ----
 $('grid').addEventListener('click', (e) => {
@@ -159,7 +169,13 @@ $('grid').addEventListener('drop', (e) => {
 $('prevMonth').onclick = () => { viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } renderCalendar(); };
 $('nextMonth').onclick = () => { viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } renderCalendar(); };
 $('today').onclick = () => { selected = todayKey; viewYear = new Date().getFullYear(); viewMonth = new Date().getMonth(); render(); };
-document.querySelectorAll('.views button').forEach((b) => (b.onclick = () => { view = b.dataset.view; renderView(); }));
+$('monthList').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-goto]');
+  if (!b) return;
+  selected = b.dataset.goto;
+  render();
+  $('dayLabel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
 
 $('export').onclick = () => {
   const blob = new Blob([toIcs(tasks)], { type: 'text/calendar' });

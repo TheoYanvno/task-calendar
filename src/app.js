@@ -77,7 +77,7 @@ const taskItem = (t, key, showDate = false) => `
       <span class="t-meta">${[showDate && fmtDay(key, { weekday: 'short', month: 'short', day: 'numeric' }), fmtTime(t.time), repeatLabel[t.repeat]].filter(Boolean).join(' · ')}</span>
       ${t.location ? `<a class="t-loc" href="${esc(mapLink(t.location))}" target="_blank" rel="noopener" title="Open in Google Maps">📍 ${esc(t.location)}</a>` : ''}
     </span>
-    <a class="mail" href="${esc(googleCalendarUrl(t, key))}" target="_blank" rel="noopener" title="Email me a reminder (adds it to Google Calendar)" aria-label="Email me a reminder for ${esc(t.title)}">✉️</a>
+    <a class="mail" href="${esc(googleCalendarUrl(t, key))}" target="_blank" rel="noopener" title="Email me a reminder (adds it to Google Calendar)" aria-label="Email me a reminder for ${esc(t.title)}"><span aria-hidden="true">✉️</span> Email me</a>
     <button class="del" data-del="${t.id}" aria-label="Delete ${esc(t.title)}">✕</button>
   </li>`;
 

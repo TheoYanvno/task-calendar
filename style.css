@@ -112,8 +112,15 @@ body, .top, .day, .primary { transition: background-color .3s ease, color .3s ea
 }
 
 /* Email reminders */
-.mail { text-decoration: none; font-size: 1rem; padding: 2px 4px; border-radius: 6px; opacity: .65; }
-.mail:hover, .mail:focus-visible { opacity: 1; background: rgba(127,127,127,.15); }
+.mail { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; text-decoration: none; font-size: .78rem; font-weight: 700;
+        padding: 5px 10px; border-radius: 999px; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);
+        border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent); transition: background-color .15s ease, color .15s ease, transform .15s ease; }
+.mail:hover, .mail:focus-visible { background: var(--accent); color: #fff; transform: translateY(-1px); outline: none; }
+:root.seasonal.dark .mail:hover, :root.seasonal.dark .mail:focus-visible { color: #0f172a; }
+.task.completed .mail { opacity: .45; }
+/* The first email button on the page gives a gentle nudge so people notice it */
+.tasks li:first-child .mail { animation: nudge 2.4s ease 1s 2; }
+@keyframes nudge { 0%, 100% { transform: none; } 10% { transform: rotate(-6deg) scale(1.08); } 20% { transform: rotate(6deg) scale(1.08); } 30% { transform: none; } }
 .mail-help summary { cursor: pointer; font-weight: 600; }
 .mail-help p { font-size: .85rem; line-height: 1.5; margin: 10px 0 0; }
 .mail-help .muted { color: var(--muted); }

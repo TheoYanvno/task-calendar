@@ -46,3 +46,7 @@ npm test                         # 24 tests: dates and repeats, holidays, themes
 ```
 
 Built with help from AI coding tools for planning, code review and tests.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
